@@ -11,6 +11,16 @@ const { token, clientId, guildId } = require('./config.json');
 function initializeFirebase() {
     if (!admin.apps.length) {
         try {
+            // --- START: DEBUGGING LOGS ---
+            // Let's log the environment variables that the bot can see.
+            // This will help us confirm they are set correctly in the hosting service.
+            console.log("--- Checking Environment Variables ---");
+            console.log("FIREBASE_DATABASE_URL:", process.env.FIREBASE_DATABASE_URL ? "Found" : "Not Found!");
+            console.log("FIREBASE_DATABASE_SECRET:", process.env.FIREBASE_DATABASE_SECRET ? "Found" : "Not Found!");
+            console.log("------------------------------------");
+            // --- END: DEBUGGING LOGS ---
+
+
             // Check if the required environment variables are set.
             // You will get these from your Firebase project settings.
             if (!process.env.FIREBASE_DATABASE_URL || !process.env.FIREBASE_DATABASE_SECRET) {
@@ -34,17 +44,11 @@ function initializeFirebase() {
             process.exit(1);
         }
     }
-    // Authenticate with the database secret
-    const db = admin.database();
-    db.auth(process.env.FIREBASE_DATABASE_SECRET, (error, result) => {
-        if (error) {
-            console.error('Firebase database authentication failed:', error);
-            process.exit(1);
-        } else {
-            console.log('Firebase database authentication successful.');
-        }
-    });
-    return db;
+    // The old db.auth() method is deprecated and was causing a crash.
+    // The modern SDK handles authentication with the database secret
+    // through the `databaseAuthVariableOverride` parameter during initializeApp.
+    // We can just return the database instance now.
+    return admin.database();
 }
 // --- END: MODIFIED FIREBASE INITIALIZATION ---
 
@@ -249,3 +253,4 @@ function initializeBot() {
 
 // Start the bot directly
 initializeBot();
+
