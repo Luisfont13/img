@@ -2,7 +2,6 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits, Partials, REST, Routes, PermissionsBitField } = require('discord.js');
 const admin = require('firebase-admin');
-const { token, clientId, guildId } = require('./config.json');
 
 // --- START: MODIFIED FIREBASE INITIALIZATION ---
 
@@ -17,6 +16,9 @@ function initializeFirebase() {
             console.log("--- Checking Environment Variables ---");
             console.log("FIREBASE_DATABASE_URL:", process.env.FIREBASE_DATABASE_URL ? "Found" : "Not Found!");
             console.log("FIREBASE_DATABASE_SECRET:", process.env.FIREBASE_DATABASE_SECRET ? "Found" : "Not Found!");
+            console.log("DISCORD_BOT_TOKEN:", process.env.DISCORD_BOT_TOKEN ? "Found" : "Not Found!");
+            console.log("DISCORD_CLIENT_ID:", process.env.DISCORD_CLIENT_ID ? "Found" : "Not Found!");
+            console.log("DISCORD_GUILD_ID:", process.env.DISCORD_GUILD_ID ? "Found" : "Not Found!");
             console.log("------------------------------------");
             // --- END: DEBUGGING LOGS ---
 
@@ -55,6 +57,18 @@ function initializeFirebase() {
 
 function initializeBot() {
     console.log('Initializing Discord bot...');
+
+    // --- START: Get config from environment variables ---
+    const token = process.env.DISCORD_BOT_TOKEN;
+    const clientId = process.env.DISCORD_CLIENT_ID;
+    const guildId = process.env.DISCORD_GUILD_ID;
+
+    if (!token || !clientId || !guildId) {
+        console.error("Error: DISCORD_BOT_TOKEN, DISCORD_CLIENT_ID, and DISCORD_GUILD_ID must be set in environment variables.");
+        process.exit(1);
+    }
+    // --- END: Get config from environment variables ---
+
     const db = initializeFirebase();
 
     const client = new Client({
@@ -253,4 +267,3 @@ function initializeBot() {
 
 // Start the bot directly
 initializeBot();
-
